@@ -17,8 +17,8 @@ namespace weather.Api.Controllers
         [HttpGet("latest")]
         public async Task<IActionResult> GetLatestWeather()
         {
-            var latestWeather = await _weatherService.GetLatestWeatherWithFallbackAsync();
-            return latestWeather != null ? Ok(latestWeather) : NoContent();
+            var result = await _weatherService.GetLatestWeatherWithFallbackAsync();
+            return result.IsSuccess ? Ok(result) : BadRequest();        
         }
     }
 }

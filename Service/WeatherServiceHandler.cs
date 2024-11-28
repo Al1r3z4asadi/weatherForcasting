@@ -1,5 +1,5 @@
-﻿using weather.Core.AppService;
-using weather.Core.Entity;
+﻿using weather.Common;
+using weather.Core.AppService;
 using weather.Core.IServices;
 
 namespace weather.Service
@@ -22,9 +22,15 @@ namespace weather.Service
             throw new NotImplementedException();
         }
 
-        public Task<Weather?> GetLatestWeatherWithFallbackAsync()
+        public async  Task<ServiceResult<string>> GetLatestWeatherWithFallbackAsync()
         {
-            return null;
+            try
+            {
+                var result = await _externalService.GetWeatherDataAsync();
+                return ServiceResult<string>.Success(result);
+            }catch (Exception ex) {
+                return ServiceResult<string>.Failure("Empty");
+            }
         }
     }
 }
