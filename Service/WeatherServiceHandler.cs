@@ -28,7 +28,7 @@ namespace weather.Service
 
         public async Task<ServiceResult<string>> GetLatestWeatherWithFallbackAsync(string key)
         {
-
+            var x =  redisCache.GetWeatherDataStartingWithLatestPaginatedAsync();
             var cachedData = await redisCache.TryGetWeatherFromCacheAsync(key);
             if (cachedData != null)
             {
