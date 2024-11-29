@@ -14,10 +14,11 @@ namespace weather.Api.Controllers
             _weatherService = weatherService;
         }
 
-        [HttpGet("latest")]
+        [HttpGet("")]
         public async Task<IActionResult> GetLatestWeather()
         {
-            var result = await _weatherService.GetLatestWeatherWithFallbackAsync();
+            var queryParameters = HttpContext.Request.QueryString.Value?.TrimStart('?'); ;
+            var result = await _weatherService.GetLatestWeatherWithFallbackAsync(queryParameters);
             return result.IsSuccess ? Ok(result) : BadRequest();        
         }
     }

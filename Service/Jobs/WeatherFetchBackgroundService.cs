@@ -1,11 +1,11 @@
 ﻿using weather.Core.AppService;
 
-namespace weather.Jobs
+namespace weather.Service.Jobs
 {
     public class WeatherFetchBackgroundService : BackgroundService
     {
         private readonly IServiceProvider _services;
-        private readonly TimeSpan _interval = TimeSpan.FromHours(1);
+        private readonly TimeSpan _interval = TimeSpan.FromSeconds(20);
 
         public WeatherFetchBackgroundService(IServiceProvider services)
         {
