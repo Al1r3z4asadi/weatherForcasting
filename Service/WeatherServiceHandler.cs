@@ -26,22 +26,9 @@ namespace weather.Service
             _logger = logger;   
         }
 
- 
-        public async Task FetchAndStoreWeatherDataAsync()
-        {
-
-            //var data = await redisCache.TryGetWeatherFromCacheAsync(key);  
-            //if (string.IsNullOrEmpty(data))
-            //{
-            //    data = await _externalService.GetWeatherDataAsync();
-            //}
-            //if(!string.IsNullOrEmpty(data)) { 
-            //    _weatherRepository.saveData(data);
-            //}
-        }
-
         public async Task<ServiceResult<string>> GetLatestWeatherWithFallbackAsync(string key)
         {
+
             var cachedData = await redisCache.TryGetWeatherFromCacheAsync(key);
             if (cachedData != null)
             {
@@ -62,9 +49,7 @@ namespace weather.Service
 
             return ServiceResult<string>.Failure("No data available from any source");
         }
-
-
-
+            
         private async Task<string> TryGetWeatherFromExternalServiceAsync(string key)
         {
             try
@@ -72,7 +57,7 @@ namespace weather.Service
                 var weatherData = await _externalService.GetWeatherDataAsync(key);
                 if (!string.IsNullOrEmpty(weatherData))
                 {
-                    await redisCache.SetData(weatherData , key);
+                    redisCache.SetData(weatherData , key);
                 }
                 return weatherData;
             }

@@ -5,9 +5,12 @@ using weather.Core.IServices;
 using weather.Core.Repository;
 using weather.ExternalService;
 using weather.Infra.Redis;
+using Quartz.Impl;
 using weather.Infra.SqlServer.Repository;
 using weather.Infra.WeatherDbContext;
 using weather.Service;
+using Quartz;
+using weather.Service.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +35,31 @@ builder.Services.AddCors(options =>
     });
 });
 
+
+builder.Services.AddQuartz(q =>
+{
+
+    var schedulerFactory = new StdSchedulerFactory();
+    var scheduler = schedulerFactory.GetScheduler().Result;
+
+    var jobOne = JobBuilder.Create<DeleteOldDataJob>().WithIdentity("DeleteOldDataJob").Build();
+    var jobTwo = JobBuilder.Create<BulkUpdateDataJob>().WithIdentity("BulkUpdateDataJob").Build();
+
+    var triggerOne = TriggerBuilder.Create()
+        .WithIdentity("DeleteOldDataJob")
+        .StartNow()
+        .WithCronSchedule("0 0 0 * * ?")  // Every day at midnight (00:00)
+        .Build();
+
+    var triggerTwo = TriggerBuilder.Create()
+        .WithIdentity("BulkUpdateDataJob")
+        .StartNow()
+        .WithCronSchedule("0 0 * * * ?")  // Every hour on the hour
+        .Build();
+
+    scheduler.ScheduleJob(jobOne, triggerOne).Wait();
+    scheduler.ScheduleJob(jobTwo, triggerTwo).Wait();
+});
 
 
 
@@ -58,7 +86,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
 builder.Services.AddScoped<IExternalWeatherService, ExternalWeatherService>();
 builder.Services.AddScoped<IWeatherService, WeatherServiceHandler>();
-builder.Services.AddScoped<IWeatherRepository , WeatherServiceRepo>(); 
+builder.Services.AddScoped<IWeatherRepository , WeatherRepository>(); 
 builder.Services.AddSingleton<IRedisCache , RedisRepository>(); 
 
 
@@ -67,7 +95,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 
 app.UseHttpsRedirection();
 
